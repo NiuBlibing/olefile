@@ -642,7 +642,7 @@ class OleStream(io.BytesIO):
         # optimization(?): data is first a list of strings, and join() is called
         # at the end to concatenate all in one string.
         # (this may not be really useful with recent Python versions)
-        super().__init__()
+        super(OleStream, self).__init__()
         # if size is zero, then first sector index should be ENDOFCHAIN:
         if size == 0 and sect != ENDOFCHAIN:
             log.debug('size == 0 and sect != ENDOFCHAIN:')
@@ -692,7 +692,7 @@ class OleStream(io.BytesIO):
                     (sect, len(fat), offset+sectorsize*sect, filesize, len(sector_data)))
                 log.debug('seek+len(read)=%d' % (offset+sectorsize*sect+len(sector_data)))
                 self.ole._raise_defect(DEFECT_INCORRECT, 'incomplete OLE sector')
-            super().write(sector_data)
+            super(OleStream, self).write(sector_data)
             # jump to next sector in the FAT:
             try:
                 sect = fat[sect] & 0xFFFFFFFF  # JYTHON-WORKAROUND
@@ -705,10 +705,10 @@ class OleStream(io.BytesIO):
         # if sect != ENDOFCHAIN:
         #     raise IOError('incorrect last sector index in OLE stream')
         # Data is truncated to the actual stream size:
-        data_len = super().tell()
+        data_len = super(OleStream, self).tell()
         if data_len >= size:
             log.debug('Read data of length %d, truncated to stream size %d' % (data_len, size))
-            super().truncate(size)
+            super(OleStream, self).truncate(size)
             # actual stream size is stored for future use:
             self.size = size
         elif unknown_size:
@@ -722,7 +722,7 @@ class OleStream(io.BytesIO):
             # TODO: provide details in exception message
             self.size = data_len
             self.ole._raise_defect(DEFECT_INCORRECT, 'OLE stream size is less than declared')
-        super().seek(0)
+        super(OleStream, self).seek(0)
 
 
 # --- OleDirectoryEntry -------------------------------------------------------
